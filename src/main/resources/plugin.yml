@@ -1,0 +1,4 @@
+name: BlockSumo
+author: godfather
+version: 1.0
+main: org.godfather.blocksumo.Main
