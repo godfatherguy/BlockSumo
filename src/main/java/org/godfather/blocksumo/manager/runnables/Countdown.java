@@ -14,6 +14,10 @@ public class Countdown extends BukkitRunnable {
 
     @Override
     public void run() {
+        if (gameManager.getPhase() != GamePhases.STARTING) {
+            this.cancel();
+            return;
+        }
         if (time == 0) {
             this.cancel();
             gameManager.setPhase(GamePhases.INGAME);
@@ -21,16 +25,18 @@ public class Countdown extends BukkitRunnable {
         }
         if (time <= 5) {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                p.sendMessage(ChatColor.YELLOW + "La partita inizia tra " + ChatColor.RED + time + ChatColor.YELLOW + "secondi!");
+                p.sendMessage(ChatColor.YELLOW + "La partita inizia tra " + ChatColor.RED + time + ChatColor.YELLOW + " secondi!");
                 Helper.sendTitle(p, ChatColor.RED + String.valueOf(time), "", 1, 20, 1);
                 p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
             }
         } else if (time == 10) {
             Bukkit.getOnlinePlayers().forEach(p -> Helper.sendTitle(p, ChatColor.GOLD + "10", "", 1, 20, 1));
-            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(ChatColor.YELLOW + "La partita inizierà tra " + ChatColor.GOLD + "10 " + ChatColor.YELLOW + "secondi!"));
+            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(ChatColor.YELLOW + "La partita inizia tra " + ChatColor.GOLD + "10" + ChatColor.YELLOW + " secondi!"));
+            Bukkit.getOnlinePlayers().forEach(p -> p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1));
         } else if (time % 10 == 0) {
             Bukkit.getOnlinePlayers().forEach(p -> Helper.sendTitle(p, ChatColor.YELLOW + String.valueOf(time), "", 1, 20, 1));
-            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(ChatColor.YELLOW + "La partita inizierà tra " + time + " secondi!"));
+            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(ChatColor.YELLOW + "La partita inizia tra " + time + " secondi!"));
+            Bukkit.getOnlinePlayers().forEach(p -> p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1));
         }
 
         time--;
