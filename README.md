@@ -1,0 +1,1 @@
+Blocksumo plugin test.
