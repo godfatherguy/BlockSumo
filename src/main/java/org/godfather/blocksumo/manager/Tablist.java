@@ -39,7 +39,7 @@ public class Tablist extends BukkitRunnable {
         }
     }
 
-    public static void start() {
+    public void start() {
         Tablist task = new Tablist();
         task.runTaskTimer(Main.getInstance(), 0L, 40L);
     }
