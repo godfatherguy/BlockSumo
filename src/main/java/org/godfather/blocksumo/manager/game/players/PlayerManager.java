@@ -12,8 +12,8 @@ public class PlayerManager {
     private GameManager gameManager;
     private Set<UUID> playersInGame = new HashSet<>();
     private Set<UUID> spectators = new HashSet<>();
-    private int maxPlayers=20;
-    private int requiredPlayers=2;
+    private int maxPlayers = 20;
+    private int requiredPlayers = 2;
 
     public PlayerManager(GameManager gameManager) {
         this.gameManager = gameManager;

@@ -9,7 +9,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.godfather.blocksumo.manager.game.GameManager;
 import org.godfather.blocksumo.manager.game.GamePhases;
-import org.godfather.blocksumo.utils.Helper;
 
 public class PlayerLoginListener implements Listener {
 
@@ -59,6 +58,7 @@ public class PlayerLoginListener implements Listener {
         Player p = event.getPlayer();
 
         switch (gameManager.getPhase()) {
+
             case WAITING:
                 gameManager.getPlayerManager().removePlayerFromGame(p);
                 Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GRAY + p.getName() + ChatColor.YELLOW + " è uscito!"));
@@ -72,19 +72,30 @@ public class PlayerLoginListener implements Listener {
                 }
                 break;
             case INGAME:
-            case END:
                 if (gameManager.getPlayerManager().getSpectators().contains(p)) {
                     gameManager.getPlayerManager().removeSpectator(p);
                 } else if (gameManager.getPlayerManager().getPlayersInGame().contains(p)) {
                     gameManager.getPlayerManager().removePlayerFromGame(p);
                     Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GRAY + p.getName() + ChatColor.YELLOW + " è uscito dalla partita."));
-                    Bukkit.getOnlinePlayers().forEach(player -> Helper.sendTitle(player, ChatColor.RED + "Aspettando altri giocatori...", "", 5, 20, 5));
                     if (gameManager.getPlayerManager().getPlayersInGame().size() == 0) {
                         //todo resettare il game;
                     }
                 }
                 break;
+            case END:
+            case LOADING:
+                if (gameManager.getPlayerManager().getSpectators().contains(p)) {
+                    gameManager.getPlayerManager().removeSpectator(p);
+                } else if (gameManager.getPlayerManager().getPlayersInGame().contains(p)) {
+                    gameManager.getPlayerManager().removePlayerFromGame(p);
+                }
+                break;
         }
+        p.getInventory().clear();
+        p.getInventory().setHelmet(null);
+        p.getInventory().setChestplate(null);
+        p.getInventory().setLeggings(null);
+        p.getInventory().setBoots(null);
         event.setQuitMessage(null);
     }
 }

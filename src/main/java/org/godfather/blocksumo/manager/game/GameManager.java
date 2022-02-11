@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.godfather.blocksumo.Main;
 import org.godfather.blocksumo.manager.game.players.PlayerManager;
 import org.godfather.blocksumo.manager.runnables.Countdown;
 import org.godfather.blocksumo.utils.Helper;
@@ -15,10 +17,12 @@ public class GameManager {
     private GamePhases phase;
     private Countdown countdown;
     private PlayerManager playerManager;
+    private BlockManager blockManager;
 
     public GameManager() {
         this.countdown = new Countdown(this);
         this.playerManager = new PlayerManager(this);
+        this.blockManager = new BlockManager(this);
         setPhase(GamePhases.LOADING);
     }
 
@@ -30,6 +34,10 @@ public class GameManager {
         return this.playerManager;
     }
 
+    public BlockManager getBlockManager() {
+        return this.blockManager;
+    }
+
     public GamePhases getPhase() {
         return this.phase;
     }
@@ -39,20 +47,10 @@ public class GameManager {
 
         switch (getPhase()) {
             case LOADING:
-                for (World world : Bukkit.getWorlds()) {
-                    File[] files = new File(world.getWorldFolder().getAbsolutePath() + "/playerdata/").listFiles();
-                    if (files == null) continue;
-                    for (File file : files) {
-                        file.delete();
-                    }
-                }
-                for (World world : Bukkit.getWorlds()) {
-                    File[] files = new File(world.getWorldFolder().getAbsolutePath() + "/stats/").listFiles();
-                    if (files == null) continue;
-                    for (File file : files) {
-                        file.delete();
-                    }
-                }
+                getPlayerManager().getPlayersInGame().forEach(uuid -> Bukkit.getPlayer(uuid).kickPlayer(ChatColor.RED + "Riavvio in corso..."));
+                getPlayerManager().getSpectators().forEach(uuid -> Bukkit.getPlayer(uuid).kickPlayer(ChatColor.RED + "Riavvio in corso..."));
+                resetWorld();
+
                 setPhase(GamePhases.WAITING);
                 break;
             case WAITING:
@@ -66,7 +64,31 @@ public class GameManager {
                 getPlayerManager().getPlayersInGame().forEach(uuid -> Bukkit.getPlayer(uuid).sendMessage(ChatColor.GREEN + "Partita iniziata!"));
                 break;
             case END:
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+
+                    }
+                }.runTaskLater(Main.getInstance(), 100L);
                 break;
+        }
+    }
+
+    public void resetWorld() {
+        getBlockManager().clear();
+        for (World world : Bukkit.getWorlds()) {
+            File[] files = new File(world.getWorldFolder().getAbsolutePath() + "/playerdata/").listFiles();
+            if (files == null) continue;
+            for (File file : files) {
+                file.delete();
+            }
+        }
+        for (World world : Bukkit.getWorlds()) {
+            File[] files = new File(world.getWorldFolder().getAbsolutePath() + "/stats/").listFiles();
+            if (files == null) continue;
+            for (File file : files) {
+                file.delete();
+            }
         }
     }
 }
