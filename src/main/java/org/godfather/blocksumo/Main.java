@@ -8,27 +8,16 @@ import org.godfather.blocksumo.manager.game.listeners.PlayerWorldListener;
 
 public class Main extends JavaPlugin {
 
-    private static Main plugin;
     private GameManager gameManager;
-    private Tablist tablist;
 
     public void onEnable() {
-        super.onEnable();
-        plugin = this;
         saveDefaultConfig();
-        this.gameManager = new GameManager();
-        this.tablist = new Tablist();
-        tablist.start();
+        gameManager = new GameManager(this);
+
+        Tablist tablist = new Tablist();
+        tablist.runTaskTimer(this, 0L, 10L);
 
         getServer().getPluginManager().registerEvents(new PlayerLoginListener(gameManager), this);
         getServer().getPluginManager().registerEvents(new PlayerWorldListener(gameManager), this);
-    }
-
-    public void onDisable() {
-        super.onDisable();
-    }
-
-    public static Main getInstance() {
-        return plugin;
     }
 }

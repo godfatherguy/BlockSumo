@@ -20,7 +20,7 @@ public class BlockManager {
     private Set<Block> placedBlocks = new HashSet<>();
 
     public Set<Block> getPlacedBlocks() {
-        return this.placedBlocks;
+        return placedBlocks;
     }
 
     public void addBlock(Block block) {
@@ -35,7 +35,7 @@ public class BlockManager {
         for (Block block : getPlacedBlocks()) {
             block.setType(Material.AIR);
         }
-        this.placedBlocks.clear();
+        getPlacedBlocks().clear();
     }
 
     public void setRandomColor(Wool wool) {

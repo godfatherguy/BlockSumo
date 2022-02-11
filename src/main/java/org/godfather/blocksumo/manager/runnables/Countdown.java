@@ -5,7 +5,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.godfather.blocksumo.Main;
 import org.godfather.blocksumo.manager.game.GameManager;
 import org.godfather.blocksumo.manager.game.GamePhases;
 import org.godfather.blocksumo.utils.Helper;
@@ -15,30 +14,20 @@ public class Countdown extends BukkitRunnable {
     @Override
     public void run() {
         if (gameManager.getPhase() != GamePhases.STARTING) {
-            this.cancel();
+            cancel();
             return;
         }
         if (time == 0) {
-            this.cancel();
+            cancel();
             gameManager.setPhase(GamePhases.INGAME);
             return;
-        }
-        if (time <= 5) {
+        } else if (time <= 5 || time == 10 || time % 10 == 0) {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                p.sendMessage(ChatColor.YELLOW + "La partita inizia tra " + ChatColor.RED + time + ChatColor.YELLOW + " secondi!");
-                Helper.sendTitle(p, ChatColor.RED + String.valueOf(time), "", 1, 20, 1);
+                p.sendMessage(ChatColor.YELLOW + "La partita inizia tra " + timeColor(time) + time + ChatColor.YELLOW + " secondi!");
+                Helper.sendTitle(p, timeColor(time) + String.valueOf(time), "", 1, 20, 1);
                 p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
             }
-        } else if (time == 10) {
-            Bukkit.getOnlinePlayers().forEach(p -> Helper.sendTitle(p, ChatColor.GOLD + "10", "", 1, 20, 1));
-            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(ChatColor.YELLOW + "La partita inizia tra " + ChatColor.GOLD + "10" + ChatColor.YELLOW + " secondi!"));
-            Bukkit.getOnlinePlayers().forEach(p -> p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1));
-        } else if (time % 10 == 0) {
-            Bukkit.getOnlinePlayers().forEach(p -> Helper.sendTitle(p, ChatColor.YELLOW + String.valueOf(time), "", 1, 20, 1));
-            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(ChatColor.YELLOW + "La partita inizia tra " + time + " secondi!"));
-            Bukkit.getOnlinePlayers().forEach(p -> p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1));
         }
-
         time--;
     }
 
@@ -50,8 +39,9 @@ public class Countdown extends BukkitRunnable {
 
     private int time = 30;
 
-    public void start() {
-        Countdown task = new Countdown(gameManager);
-        task.runTaskTimer(Main.getInstance(), 0L, 20L);
+    private ChatColor timeColor(int time) {
+        if (time <= 5) return ChatColor.RED;
+        else if (time == 10) return ChatColor.GOLD;
+        else return ChatColor.YELLOW;
     }
 }

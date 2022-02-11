@@ -15,31 +15,31 @@ import java.io.File;
 public class GameManager {
 
     private GamePhases phase;
-    private Countdown countdown;
+    private Main plugin;
     private PlayerManager playerManager;
     private BlockManager blockManager;
 
-    public GameManager() {
-        this.countdown = new Countdown(this);
-        this.playerManager = new PlayerManager(this);
-        this.blockManager = new BlockManager(this);
+    public GameManager(Main plugin) {
+        this.plugin = plugin;
+        playerManager = new PlayerManager(this);
+        blockManager = new BlockManager(this);
         setPhase(GamePhases.LOADING);
     }
 
-    public Countdown getCountdown() {
-        return this.countdown;
+    public Main getInstance() {
+        return plugin;
     }
 
     public PlayerManager getPlayerManager() {
-        return this.playerManager;
+        return playerManager;
     }
 
     public BlockManager getBlockManager() {
-        return this.blockManager;
+        return blockManager;
     }
 
     public GamePhases getPhase() {
-        return this.phase;
+        return phase;
     }
 
     public void setPhase(GamePhases phase) {
@@ -56,7 +56,8 @@ public class GameManager {
             case WAITING:
                 break;
             case STARTING:
-                getCountdown().start();
+                Countdown task = new Countdown(this);
+                task.runTaskTimer(getInstance(), 10L, 20L);
                 break;
             case INGAME:
                 getPlayerManager().setupStats();
@@ -70,7 +71,7 @@ public class GameManager {
                     public void run() {
                         //todo finire qua
                     }
-                }.runTaskLater(Main.getInstance(), 100L);
+                }.runTaskLater(getInstance(), 100L);
                 break;
         }
     }

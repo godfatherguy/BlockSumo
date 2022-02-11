@@ -7,7 +7,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.godfather.blocksumo.Main;
 
 import java.lang.reflect.Field;
 
@@ -37,10 +36,5 @@ public class Tablist extends BukkitRunnable {
         } catch (IllegalAccessError | NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
-    }
-
-    public void start() {
-        Tablist task = new Tablist();
-        task.runTaskTimer(Main.getInstance(), 0L, 40L);
     }
 }
