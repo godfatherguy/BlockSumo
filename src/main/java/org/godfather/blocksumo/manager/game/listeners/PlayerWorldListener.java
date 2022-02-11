@@ -1,5 +1,8 @@
 package org.godfather.blocksumo.manager.game.listeners;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -7,13 +10,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Wool;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.godfather.blocksumo.Main;
 import org.godfather.blocksumo.manager.game.GameManager;
 import org.godfather.blocksumo.manager.game.GamePhases;
+
+import java.util.Random;
 
 public class PlayerWorldListener implements Listener {
 
@@ -71,8 +80,68 @@ public class PlayerWorldListener implements Listener {
         if (!(event.getEntity() instanceof Player)) return;
         Player p = (Player) event.getEntity();
 
+        if (gameManager.getPhase() != GamePhases.INGAME) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK)
             event.setCancelled(true);
         else event.setDamage(0.0);
+    }
+
+    @EventHandler
+    public void onHit(EntityDamageByEntityEvent event) {
+        if (gameManager.getPhase() != GamePhases.INGAME) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (!(event.getEntity() instanceof Player)) {
+            event.setCancelled(true);
+            return;
+        }
+        Player victim = (Player) event.getEntity();
+
+        if (!(event.getDamager() instanceof Player)) {
+            event.setCancelled(true);
+            return;
+        }
+        Player damager = (Player) event.getDamager();
+
+        event.setDamage(0.0);
+        gameManager.getPlayerManager().damageMap.remove(victim.getUniqueId());
+        gameManager.getPlayerManager().damageMap.put(victim.getUniqueId(), damager.getUniqueId());
+    }
+
+    @EventHandler
+    public void onFall(PlayerMoveEvent event) {
+        Player p = event.getPlayer();
+        if (p.getLocation().getY() > 0.0) return;
+        if (p.getGameMode() != GameMode.SURVIVAL) return;
+        if (!gameManager.getPlayerManager().getPlayersInGame().contains(p.getUniqueId())) return;
+
+        if (gameManager.getPhase() != GamePhases.INGAME) return;
+
+        gameManager.getPlayerManager().killPlayer(p);
+        Player damager = Bukkit.getPlayer(gameManager.getPlayerManager().damageMap.get(p.getUniqueId()));
+
+        gameManager.getPlayerManager().setKills(damager, gameManager.getPlayerManager().getKills(damager) + 1);
+        int rand = new Random().nextInt(4);
+        switch (rand) {
+            case 0:
+                Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è stato spinto da " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
+                break;
+            case 1:
+                Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è stato buttato giù da " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
+                break;
+            case 2:
+                Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è morto per mano di " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
+                break;
+            case 3:
+                Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è stato equalizzato da " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
+                break;
+        }
+        gameManager.getPlayerManager().damageMap.remove(p.getUniqueId());
     }
 }

@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.godfather.blocksumo.manager.game.GameManager;
 import org.godfather.blocksumo.manager.game.GamePhases;
+import org.godfather.blocksumo.manager.game.players.DeathCountdown;
 
 public class PlayerLoginListener implements Listener {
 
@@ -91,11 +92,10 @@ public class PlayerLoginListener implements Listener {
                 }
                 break;
         }
+        gameManager.getPlayerManager().kills.remove(p.getUniqueId());
+        gameManager.getPlayerManager().lives.remove(p.getUniqueId());
         p.getInventory().clear();
-        p.getInventory().setHelmet(null);
-        p.getInventory().setChestplate(null);
-        p.getInventory().setLeggings(null);
-        p.getInventory().setBoots(null);
+        p.getInventory().setArmorContents(null);
         event.setQuitMessage(null);
     }
 }
