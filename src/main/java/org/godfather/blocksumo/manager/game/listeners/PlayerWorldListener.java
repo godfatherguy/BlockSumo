@@ -130,7 +130,7 @@ public class PlayerWorldListener implements Listener {
         Player damager = (Player) p.getLastDamageCause().getEntity();
 
         if (damager.isOnline()) {
-            gameManager.getPlayerManager().setKills(damager, gameManager.getPlayerManager().getKills(damager) + 1);
+            gameManager.getPlayerManager().getProfile(damager).addKill();
             Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è stato spinto da " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
             damager.playSound(damager.getLocation(), Sound.ORB_PICKUP, 1, 2);
         } else

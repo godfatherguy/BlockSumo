@@ -11,18 +11,14 @@ import org.godfather.blocksumo.manager.game.items.Shears;
 import org.godfather.blocksumo.manager.game.items.Wool;
 import org.godfather.blocksumo.utils.Helper;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerManager {
 
     private final GameManager gameManager;
     private final Set<UUID> playersInGame = new HashSet<>();
     private final Set<UUID> spectators = new HashSet<>();
-    public HashMap<UUID, Integer> lives = new HashMap<>();
-    public HashMap<UUID, Integer> kills = new HashMap<>();
+    private final Map<Player, GamePlayer> players = new HashMap<>();
 
     public PlayerManager(GameManager gameManager) {
         this.gameManager = gameManager;
@@ -60,39 +56,26 @@ public class PlayerManager {
         getSpectators().remove(p.getUniqueId());
     }
 
-    public void setupStats() {
-        for (UUID uuid : getPlayersInGame()) {
-            lives.put(uuid, 5);
-            kills.put(uuid, 0);
-        }
+    public void setupGamePlayer(Player p){
+        players.put(p, new GamePlayer(p.getUniqueId()));
     }
 
-    public int getLives(Player p) {
-        return lives.get(p.getUniqueId());
+    public void removeGamePlayer(Player p){
+        players.remove(p);
     }
 
-    public void setLives(Player p, int life) {
-        lives.remove(p.getUniqueId());
-        lives.put(p.getUniqueId(), life);
-    }
-
-    public int getKills(Player p) {
-        return kills.get(p.getUniqueId());
-    }
-
-    public void setKills(Player p, int kill) {
-        kills.remove(p.getUniqueId());
-        kills.put(p.getUniqueId(), kill);
+    public GamePlayer getProfile(Player p){
+        return players.get(p);
     }
 
     public void killPlayer(Player p) {
         p.getInventory().clear();
-        removePlayerFromGame(p);
-        addSpectator(p);
-        if (getLives(p) >= 1) {
-            setLives(p, getLives(p) - 1);
+        if (getProfile(p).getLives() >= 1) {
+            getProfile(p).removeLife();
             new DeathCountdown(gameManager, p).runTaskTimer(gameManager.getInstance(), 20L, 20L);
         } else {
+            playersInGame.remove(p.getUniqueId());
+            spectators.add(p.getUniqueId());
             p.getInventory().setItem(0, PlayerNavigator.getItem());
             Helper.sendTitle(p, ChatColor.RED + "" + ChatColor.BOLD + "SEI UNO SPETTATORE", ChatColor.GRAY + "Non puoi più respawnare!", 10, 40, 10);
             p.getWorld().strikeLightningEffect(p.getLocation());
@@ -109,8 +92,6 @@ public class PlayerManager {
         Inventory inventory = p.getInventory();
         inventory.setItem(0, Shears.getItem());
         inventory.setItem(3, Wool.getItem());
-        removeSpectator(p);
-        addPlayerToGame(p);
         for (UUID uuid : playersInGame) {
             Player player = Bukkit.getPlayer(uuid);
             player.showPlayer(p);

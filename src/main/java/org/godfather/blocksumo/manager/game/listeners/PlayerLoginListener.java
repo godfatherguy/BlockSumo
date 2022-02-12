@@ -64,6 +64,7 @@ public class PlayerLoginListener implements Listener {
                 break;
         }
         event.setJoinMessage(null);
+        gameManager.getPlayerManager().setupGamePlayer(p);
     }
 
     @EventHandler
@@ -104,10 +105,9 @@ public class PlayerLoginListener implements Listener {
                 }
                 break;
         }
-        gameManager.getPlayerManager().kills.remove(p.getUniqueId());
-        gameManager.getPlayerManager().lives.remove(p.getUniqueId());
         p.getInventory().clear();
         p.getInventory().setArmorContents(null);
         event.setQuitMessage(null);
+        gameManager.getPlayerManager().removeGamePlayer(p);
     }
 }

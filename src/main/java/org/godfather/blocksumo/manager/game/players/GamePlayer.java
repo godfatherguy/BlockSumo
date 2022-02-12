@@ -1,10 +1,12 @@
 package org.godfather.blocksumo.manager.game.players;
 
+import org.bukkit.ChatColor;
+
 import java.util.UUID;
 
 public class GamePlayer {
 
-    private UUID uuid;
+    private final UUID uuid;
     private int kills = 0;
     private int lives = 5;
 
@@ -48,9 +50,9 @@ public class GamePlayer {
         lives--;
     }
 
-    public void remove() {
-        uuid = null;
-        kills = 0;
-        lives = 0;
+    public ChatColor getLifeColor() {
+        if (getLives() >= 4) return ChatColor.GREEN;
+        else if (getLives() >= 2) return ChatColor.GOLD;
+        else return ChatColor.RED;
     }
 }
