@@ -24,10 +24,10 @@ public class DeathCountdown extends BukkitRunnable {
         time--;
     }
 
-    private Player player;
+    private final Player player;
     private int time = 5;
 
-    private GameManager gameManager;
+    private final GameManager gameManager;
 
     public DeathCountdown(GameManager gameManager, Player p) {
         this.gameManager = gameManager;

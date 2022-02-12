@@ -1,9 +1,6 @@
 package org.godfather.blocksumo.manager.game.listeners;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,7 +18,7 @@ import org.godfather.blocksumo.manager.game.GamePhases;
 
 public class PlayerWorldListener implements Listener {
 
-    private GameManager gameManager;
+    private final GameManager gameManager;
 
     public PlayerWorldListener(GameManager gameManager) {
         this.gameManager = gameManager;
@@ -40,9 +37,23 @@ public class PlayerWorldListener implements Listener {
             event.setCancelled(true);
             return;
         }
+
+        if(block.getLocation().getX() < -30.0 || block.getLocation().getY() < 0.0 || block.getLocation().getZ() < -30.0){
+            event.setCancelled(true);
+            return;
+        }
+        if(block.getLocation().getX() > 30.0 || block.getLocation().getY() > 41.0 || block.getLocation().getZ() > 30.0) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if(block.getLocation().getX() < 2.5 && block.getLocation().getY() < 41.0 && block.getLocation().getZ() < 2.5
+            && block.getLocation().getX() > 1.5 && block.getLocation().getY() > 0.0 && block.getLocation().getZ() > 1.5){
+            event.setCancelled(true);
+            return;
+        }
+
         gameManager.getBlockManager().addBlock(block);
-
-
     }
 
     @EventHandler
@@ -118,9 +129,10 @@ public class PlayerWorldListener implements Listener {
         gameManager.getPlayerManager().killPlayer(p);
         Player damager = (Player) p.getLastDamageCause().getEntity();
 
-        if (damager.isOnline() && damager != null) {
+        if (damager.isOnline()) {
             gameManager.getPlayerManager().setKills(damager, gameManager.getPlayerManager().getKills(damager) + 1);
             Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è stato spinto da " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
+            damager.playSound(damager.getLocation(), Sound.ORB_PICKUP, 1, 2);
         } else
             Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è caduto nel vuoto."));
     }

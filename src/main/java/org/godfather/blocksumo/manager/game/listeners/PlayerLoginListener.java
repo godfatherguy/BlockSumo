@@ -2,6 +2,7 @@ package org.godfather.blocksumo.manager.game.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,10 +10,13 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.godfather.blocksumo.manager.game.GameManager;
 import org.godfather.blocksumo.manager.game.GamePhases;
+import org.godfather.blocksumo.manager.game.items.PlayerNavigator;
+
+import java.util.UUID;
 
 public class PlayerLoginListener implements Listener {
 
-    private GameManager gameManager;
+    private final GameManager gameManager;
 
     public PlayerLoginListener(GameManager gameManager) {
         this.gameManager = gameManager;
@@ -34,6 +38,7 @@ public class PlayerLoginListener implements Listener {
                         + ChatColor.AQUA + gameManager.getPlayerManager().getMaxPlayers() + ChatColor.YELLOW + ")!"));
                 if (gameManager.getPlayerManager().getPlayersInGame().size() >= gameManager.getPlayerManager().getRequiredPlayers())
                     gameManager.setPhase(GamePhases.STARTING);
+                p.teleport(gameManager.getMap().getLobbyLocation());
                 break;
             case STARTING:
                 if (gameManager.getPlayerManager().getPlayersInGame().size() == gameManager.getPlayerManager().getMaxPlayers())
@@ -44,10 +49,18 @@ public class PlayerLoginListener implements Listener {
                             + ChatColor.YELLOW + " è entrato (" + ChatColor.AQUA + gameManager.getPlayerManager().getPlayersInGame().size() + ChatColor.YELLOW + "/"
                             + ChatColor.AQUA + gameManager.getPlayerManager().getMaxPlayers() + ChatColor.YELLOW + ")!"));
                 }
+                p.teleport(gameManager.getMap().getLobbyLocation());
                 break;
             case INGAME:
                 gameManager.getPlayerManager().addSpectator(p);
                 p.sendMessage(ChatColor.GRAY + "Sei entrato come spettatore!");
+                p.getInventory().setItem(0, PlayerNavigator.getItem());
+                for (UUID uuid : gameManager.getPlayerManager().getPlayersInGame()) {
+                    Player player = Bukkit.getPlayer(uuid);
+                    player.hidePlayer(p);
+                }
+                p.setGameMode(GameMode.SPECTATOR);
+                p.teleport(gameManager.getMap().getSpectLocation());
                 break;
         }
         event.setJoinMessage(null);
@@ -72,9 +85,9 @@ public class PlayerLoginListener implements Listener {
                 }
                 break;
             case INGAME:
-                if (gameManager.getPlayerManager().getSpectators().contains(p)) {
+                if (gameManager.getPlayerManager().getSpectators().contains(p.getUniqueId())) {
                     gameManager.getPlayerManager().removeSpectator(p);
-                } else if (gameManager.getPlayerManager().getPlayersInGame().contains(p)) {
+                } else if (gameManager.getPlayerManager().getPlayersInGame().contains(p.getUniqueId())) {
                     gameManager.getPlayerManager().removePlayerFromGame(p);
                     Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GRAY + p.getName() + ChatColor.YELLOW + " è uscito dalla partita."));
                     if (gameManager.getPlayerManager().getPlayersInGame().size() == 0) {
@@ -84,9 +97,9 @@ public class PlayerLoginListener implements Listener {
                 break;
             case END:
             case LOADING:
-                if (gameManager.getPlayerManager().getSpectators().contains(p)) {
+                if (gameManager.getPlayerManager().getSpectators().contains(p.getUniqueId())) {
                     gameManager.getPlayerManager().removeSpectator(p);
-                } else if (gameManager.getPlayerManager().getPlayersInGame().contains(p)) {
+                } else if (gameManager.getPlayerManager().getPlayersInGame().contains(p.getUniqueId())) {
                     gameManager.getPlayerManager().removePlayerFromGame(p);
                 }
                 break;

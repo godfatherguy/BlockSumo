@@ -19,7 +19,7 @@ import java.util.UUID;
 
 public class PlayerNavigator implements Listener {
 
-    private GameManager gameManager;
+    private final GameManager gameManager;
 
     public PlayerNavigator(GameManager gameManager) {
         this.gameManager = gameManager;

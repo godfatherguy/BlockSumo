@@ -31,7 +31,7 @@ public class Countdown extends BukkitRunnable {
         time--;
     }
 
-    private GameManager gameManager;
+    private final GameManager gameManager;
 
     public Countdown(GameManager gameManager) {
         this.gameManager = gameManager;

@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.godfather.blocksumo.Main;
 import org.godfather.blocksumo.manager.game.players.PlayerManager;
 import org.godfather.blocksumo.manager.runnables.Countdown;
@@ -15,14 +14,16 @@ import java.io.File;
 public class GameManager {
 
     private GamePhases phase;
-    private Main plugin;
-    private PlayerManager playerManager;
-    private BlockManager blockManager;
+    private final Main plugin;
+    private final PlayerManager playerManager;
+    private final BlockManager blockManager;
+    private final MapManager mapManager;
 
     public GameManager(Main plugin) {
         this.plugin = plugin;
         playerManager = new PlayerManager(this);
         blockManager = new BlockManager(this);
+        mapManager = new MapManager();
         setPhase(GamePhases.LOADING);
     }
 
@@ -36,6 +37,10 @@ public class GameManager {
 
     public BlockManager getBlockManager() {
         return blockManager;
+    }
+
+    public MapManager getMap(){
+        return mapManager;
     }
 
     public GamePhases getPhase() {
@@ -67,12 +72,6 @@ public class GameManager {
                 });
                 break;
             case END:
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        //todo finire qua
-                    }
-                }.runTaskLater(getInstance(), 100L);
                 break;
         }
     }

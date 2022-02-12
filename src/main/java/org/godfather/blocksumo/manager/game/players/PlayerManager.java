@@ -18,11 +18,9 @@ import java.util.UUID;
 
 public class PlayerManager {
 
-    private GameManager gameManager;
-    private Set<UUID> playersInGame = new HashSet<>();
-    private Set<UUID> spectators = new HashSet<>();
-    private int maxPlayers = 20;
-    private int requiredPlayers = 2;
+    private final GameManager gameManager;
+    private final Set<UUID> playersInGame = new HashSet<>();
+    private final Set<UUID> spectators = new HashSet<>();
     public HashMap<UUID, Integer> lives = new HashMap<>();
     public HashMap<UUID, Integer> kills = new HashMap<>();
 
@@ -35,11 +33,11 @@ public class PlayerManager {
     }
 
     public int getMaxPlayers() {
-        return maxPlayers;
+        return 20;
     }
 
     public int getRequiredPlayers() {
-        return requiredPlayers;
+        return 2;
     }
 
     public void addPlayerToGame(Player p) {
@@ -99,8 +97,12 @@ public class PlayerManager {
             Helper.sendTitle(p, ChatColor.RED + "" + ChatColor.BOLD + "SEI UNO SPETTATORE", ChatColor.GRAY + "Non puoi più respawnare!", 10, 40, 10);
             p.getWorld().strikeLightningEffect(p.getLocation());
         }
+        for (UUID uuid : playersInGame) {
+            Player player = Bukkit.getPlayer(uuid);
+            player.hidePlayer(p);
+        }
         p.setGameMode(GameMode.SPECTATOR);
-        //todo teletrasportare al punto spettatore
+        p.teleport(gameManager.getMap().getSpectLocation());
     }
 
     public void respawnPlayer(Player p) {
@@ -109,11 +111,11 @@ public class PlayerManager {
         inventory.setItem(3, Wool.getItem());
         removeSpectator(p);
         addPlayerToGame(p);
-        for(UUID uuid : playersInGame){
+        for (UUID uuid : playersInGame) {
             Player player = Bukkit.getPlayer(uuid);
             player.showPlayer(p);
         }
         p.setGameMode(GameMode.SURVIVAL);
-        //todo teletrasportare al punto di spawn
+        p.teleport(gameManager.getMap().getSpawnLocation());
     }
 }
