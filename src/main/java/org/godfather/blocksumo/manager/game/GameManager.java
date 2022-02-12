@@ -56,14 +56,15 @@ public class GameManager {
             case WAITING:
                 break;
             case STARTING:
-                Countdown task = new Countdown(this);
-                task.runTaskTimer(getInstance(), 10L, 20L);
+                new Countdown(this).runTaskTimer(getInstance(), 10L, 20L);
                 break;
             case INGAME:
                 getPlayerManager().setupStats();
-                getPlayerManager().getPlayersInGame().forEach(uuid -> Helper.sendTitle(Bukkit.getPlayer(uuid), ChatColor.RED + "" + ChatColor.BOLD + "BlockSumo", ChatColor.YELLOW + "Gioco iniziato!", 5, 40, 5));
-                getPlayerManager().getPlayersInGame().forEach(uuid -> Bukkit.getPlayer(uuid).playSound(Bukkit.getPlayer(uuid).getLocation(), Sound.LEVEL_UP, 1, 2));
-                getPlayerManager().getPlayersInGame().forEach(uuid -> Bukkit.getPlayer(uuid).sendMessage(ChatColor.GREEN + "Partita iniziata!"));
+                getPlayerManager().getPlayersInGame().forEach(uuid -> {
+                    Helper.sendTitle(Bukkit.getPlayer(uuid), ChatColor.RED + "" + ChatColor.BOLD + "BlockSumo", ChatColor.YELLOW + "Gioco iniziato!", 5, 40, 5);
+                    Bukkit.getPlayer(uuid).playSound(Bukkit.getPlayer(uuid).getLocation(), Sound.LEVEL_UP, 1, 2);
+                    Bukkit.getPlayer(uuid).sendMessage(ChatColor.GREEN + "Partita iniziata!");
+                });
                 break;
             case END:
                 new BukkitRunnable() {

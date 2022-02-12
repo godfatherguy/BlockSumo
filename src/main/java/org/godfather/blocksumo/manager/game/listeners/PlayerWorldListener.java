@@ -16,13 +16,8 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.Wool;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.godfather.blocksumo.Main;
 import org.godfather.blocksumo.manager.game.GameManager;
 import org.godfather.blocksumo.manager.game.GamePhases;
-
-import java.util.Random;
 
 public class PlayerWorldListener implements Listener {
 
@@ -47,8 +42,7 @@ public class PlayerWorldListener implements Listener {
         }
         gameManager.getBlockManager().addBlock(block);
 
-        Wool wool = (Wool) block.getState();
-        gameManager.getBlockManager().setRandomColor(wool);
+
     }
 
     @EventHandler
@@ -110,8 +104,6 @@ public class PlayerWorldListener implements Listener {
         Player damager = (Player) event.getDamager();
 
         event.setDamage(0.0);
-        gameManager.getPlayerManager().damageMap.remove(victim.getUniqueId());
-        gameManager.getPlayerManager().damageMap.put(victim.getUniqueId(), damager.getUniqueId());
     }
 
     @EventHandler
@@ -124,24 +116,12 @@ public class PlayerWorldListener implements Listener {
         if (gameManager.getPhase() != GamePhases.INGAME) return;
 
         gameManager.getPlayerManager().killPlayer(p);
-        Player damager = Bukkit.getPlayer(gameManager.getPlayerManager().damageMap.get(p.getUniqueId()));
+        Player damager = (Player) p.getLastDamageCause().getEntity();
 
-        gameManager.getPlayerManager().setKills(damager, gameManager.getPlayerManager().getKills(damager) + 1);
-        int rand = new Random().nextInt(4);
-        switch (rand) {
-            case 0:
-                Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è stato spinto da " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
-                break;
-            case 1:
-                Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è stato buttato giù da " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
-                break;
-            case 2:
-                Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è morto per mano di " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
-                break;
-            case 3:
-                Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è stato equalizzato da " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
-                break;
-        }
-        gameManager.getPlayerManager().damageMap.remove(p.getUniqueId());
+        if (damager.isOnline() && damager != null) {
+            gameManager.getPlayerManager().setKills(damager, gameManager.getPlayerManager().getKills(damager) + 1);
+            Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è stato spinto da " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
+        } else
+            Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è caduto nel vuoto."));
     }
 }

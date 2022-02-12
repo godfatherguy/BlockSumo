@@ -1,7 +1,15 @@
 package org.godfather.blocksumo.manager.game.players;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.godfather.blocksumo.manager.game.GameManager;
+import org.godfather.blocksumo.manager.game.items.PlayerNavigator;
+import org.godfather.blocksumo.manager.game.items.Shears;
+import org.godfather.blocksumo.manager.game.items.Wool;
+import org.godfather.blocksumo.utils.Helper;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +25,6 @@ public class PlayerManager {
     private int requiredPlayers = 2;
     public HashMap<UUID, Integer> lives = new HashMap<>();
     public HashMap<UUID, Integer> kills = new HashMap<>();
-    public HashMap<UUID, UUID> damageMap = new HashMap<>();
 
     public PlayerManager(GameManager gameManager) {
         this.gameManager = gameManager;
@@ -86,18 +93,27 @@ public class PlayerManager {
         addSpectator(p);
         if (getLives(p) >= 1) {
             setLives(p, getLives(p) - 1);
-            DeathCountdown task = new DeathCountdown(gameManager, p);
-            task.runTaskTimer(gameManager.getInstance(), 0L, 20L);
+            new DeathCountdown(gameManager, p).runTaskTimer(gameManager.getInstance(), 20L, 20L);
         } else {
-            //todo aggiungere item dello spettatore.
+            p.getInventory().setItem(0, PlayerNavigator.getItem());
+            Helper.sendTitle(p, ChatColor.RED + "" + ChatColor.BOLD + "SEI UNO SPETTATORE", ChatColor.GRAY + "Non puoi più respawnare!", 10, 40, 10);
+            p.getWorld().strikeLightningEffect(p.getLocation());
         }
+        p.setGameMode(GameMode.SPECTATOR);
+        //todo teletrasportare al punto spettatore
     }
 
     public void respawnPlayer(Player p) {
-        p.getInventory().clear();
-        //todo dare item del giocatore
+        Inventory inventory = p.getInventory();
+        inventory.setItem(0, Shears.getItem());
+        inventory.setItem(3, Wool.getItem());
         removeSpectator(p);
         addPlayerToGame(p);
+        for(UUID uuid : playersInGame){
+            Player player = Bukkit.getPlayer(uuid);
+            player.showPlayer(p);
+        }
+        p.setGameMode(GameMode.SURVIVAL);
         //todo teletrasportare al punto di spawn
     }
 }

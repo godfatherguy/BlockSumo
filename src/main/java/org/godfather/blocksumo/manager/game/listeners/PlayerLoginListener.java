@@ -9,7 +9,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.godfather.blocksumo.manager.game.GameManager;
 import org.godfather.blocksumo.manager.game.GamePhases;
-import org.godfather.blocksumo.manager.game.players.DeathCountdown;
 
 public class PlayerLoginListener implements Listener {
 
