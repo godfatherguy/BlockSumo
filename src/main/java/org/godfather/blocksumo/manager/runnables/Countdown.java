@@ -31,7 +31,7 @@ public class Countdown extends BukkitRunnable {
         } else if (time <= 5 || time == 10 || time % 10 == 0) {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.sendMessage(ChatColor.YELLOW + "La partita inizia tra " + timeColor(time) + time + ChatColor.YELLOW + " secondi!");
-                Helper.sendTitle(p, timeColor(time) + String.valueOf(time), "", 1, 20, 1);
+                Helper.sendTitle(p, timeColor(time) + String.valueOf(time), "", 0, 21, 0);
                 p.playSound(p.getLocation(), Sound.WOOD_CLICK, 1, 1);
             }
         }

@@ -70,6 +70,7 @@ public class GameManager {
                 getPlayerManager().getPlayersInGame().forEach(uuid -> Bukkit.getPlayer(uuid).kickPlayer(ChatColor.RED + "Riavvio in corso..."));
                 getPlayerManager().getSpectators().forEach(uuid -> Bukkit.getPlayer(uuid).kickPlayer(ChatColor.RED + "Riavvio in corso..."));
                 resetWorld();
+                restart();
 
                 setPhase(GamePhases.WAITING);
                 break;
@@ -95,9 +96,9 @@ public class GameManager {
                 break;
             case END:
                 end();
-                new BukkitRunnable(){
+                new BukkitRunnable() {
                     @Override
-                    public void run(){
+                    public void run() {
                         setPhase(GamePhases.LOADING);
                     }
                 }.runTaskLater(plugin, 120L);
@@ -106,7 +107,6 @@ public class GameManager {
     }
 
     public void resetWorld() {
-        getBlockManager().clear();
         for (World world : Bukkit.getWorlds()) {
             File[] files = new File(world.getWorldFolder().getAbsolutePath() + "/playerdata/").listFiles();
             if (files == null) continue;
@@ -136,20 +136,20 @@ public class GameManager {
                 players.sendMessage(Helper.centerText(ChatColor.GOLD + "Vincitore: " + ChatColor.GRAY + p.getName()));
                 players.sendMessage(" ");
                 Set<Player> possibilities = new HashSet<>(Bukkit.getOnlinePlayers());
-                int counter=0;
-                do{
-                    int maxkills=0;
-                    Player killer=p;
-                    for(Player player : possibilities){
-                        if(playerManager.getProfile(player).getKills() > maxkills){
-                            maxkills=playerManager.getProfile(player).getKills();
-                            killer=player;
+                int counter = 0;
+                do {
+                    int maxkills = 0;
+                    Player killer = p;
+                    for (Player player : possibilities) {
+                        if (playerManager.getProfile(player).getKills() > maxkills) {
+                            maxkills = playerManager.getProfile(player).getKills();
+                            killer = player;
                         }
                     }
-                    players.sendMessage(Helper.centerText(ChatColor.RED + String.valueOf(counter+1) + "° killer: " + ChatColor.GRAY + killer.getName() + ChatColor.RED + "- " + maxkills));
+                    players.sendMessage(Helper.centerText(ChatColor.RED + String.valueOf(counter + 1) + "° killer: " + ChatColor.GRAY + killer.getName() + ChatColor.RED + "- " + maxkills));
                     possibilities.remove(killer);
                     counter++;
-                }while(counter<2);
+                } while (counter < 2);
                 players.sendMessage(" ");
             });
         }
@@ -163,5 +163,10 @@ public class GameManager {
                 p.playSound(p.getLocation(), Sound.VILLAGER_NO, 1, 2);
             }
         }
+    }
+
+    public void restart(){
+        playerManager.restart();
+        blockManager.clear();
     }
 }

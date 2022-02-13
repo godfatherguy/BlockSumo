@@ -2,3 +2,11 @@ name: BlockSumo
 author: godfather
 version: 1.0
 main: org.godfather.blocksumo.Main
+
+commands:
+  restart:
+    aliases: [restartgame]
+
+permissions:
+  blocksumo.restart:
+    default: false

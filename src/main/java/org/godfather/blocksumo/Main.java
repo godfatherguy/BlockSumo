@@ -1,6 +1,7 @@
 package org.godfather.blocksumo;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.godfather.blocksumo.commands.Restart;
 import org.godfather.blocksumo.manager.Tablist;
 import org.godfather.blocksumo.manager.game.GameManager;
 import org.godfather.blocksumo.manager.game.items.PlayerNavigator;
@@ -20,5 +21,7 @@ public class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerLoginListener(gameManager), this);
         getServer().getPluginManager().registerEvents(new PlayerWorldListener(gameManager), this);
         getServer().getPluginManager().registerEvents(new PlayerNavigator(gameManager), this);
+
+        getCommand("restart").setExecutor(new Restart(gameManager));
     }
 }

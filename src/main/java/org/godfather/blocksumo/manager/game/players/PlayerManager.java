@@ -20,6 +20,7 @@ public class PlayerManager {
     private final Set<UUID> playersInGame = new HashSet<>();
     private final Set<UUID> spectators = new HashSet<>();
     private final Map<Player, GamePlayer> players = new HashMap<>();
+    public final Map<Player, Player> damageMap = new HashMap<>();
 
     public PlayerManager(GameManager gameManager) {
         this.gameManager = gameManager;
@@ -102,5 +103,11 @@ public class PlayerManager {
         }
         p.setGameMode(GameMode.SURVIVAL);
         p.teleport(gameManager.getMap().getSpawnLocation());
+    }
+
+    public void restart(){
+        playersInGame.clear();
+        spectators.clear();
+        players.clear();
     }
 }

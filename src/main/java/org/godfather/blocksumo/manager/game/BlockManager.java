@@ -34,5 +34,4 @@ public class BlockManager {
         }
         placedBlocks.clear();
     }
-
 }
