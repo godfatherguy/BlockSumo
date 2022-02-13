@@ -127,7 +127,7 @@ public class PlayerWorldListener implements Listener {
         if (gameManager.getPhase() != GamePhases.INGAME) return;
 
         gameManager.getPlayerManager().killPlayer(p);
-        Player damager = (Player) p.getLastDamageCause().getEntity();
+        Player damager = (Player) p.getLastDamageCause().getEntity(); //todo sistemare non funziona
 
         if (damager.isOnline()) {
             gameManager.getPlayerManager().getProfile(damager).addKill();

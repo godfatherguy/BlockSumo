@@ -5,17 +5,20 @@ import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.godfather.blocksumo.Main;
 import org.godfather.blocksumo.manager.game.items.Shears;
 import org.godfather.blocksumo.manager.game.items.Wool;
 import org.godfather.blocksumo.manager.game.players.PlayerManager;
 import org.godfather.blocksumo.manager.game.scoreboard.IngameBoard;
 import org.godfather.blocksumo.manager.game.scoreboard.ScoreboardManager;
+import org.godfather.blocksumo.manager.game.scoreboard.SpectatorBoard;
 import org.godfather.blocksumo.manager.game.scoreboard.WaitingBoard;
 import org.godfather.blocksumo.manager.runnables.Countdown;
 import org.godfather.blocksumo.utils.Helper;
 
 import java.io.File;
+import java.util.*;
 
 public class GameManager {
 
@@ -78,6 +81,7 @@ public class GameManager {
                 break;
             case INGAME:
                 new IngameBoard(scoreboardManager).runTaskTimer(plugin, 0L, 5L);
+                new SpectatorBoard(scoreboardManager).runTaskTimer(plugin, 0L, 5L);
                 getPlayerManager().getPlayersInGame().forEach(uuid -> {
                     Player p = Bukkit.getPlayer(uuid);
                     Helper.sendTitle(p, ChatColor.RED + "" + ChatColor.BOLD + "BlockSumo", ChatColor.YELLOW + "Gioco iniziato!", 5, 40, 5);
@@ -90,6 +94,13 @@ public class GameManager {
                 });
                 break;
             case END:
+                end();
+                new BukkitRunnable(){
+                    @Override
+                    public void run(){
+                        setPhase(GamePhases.LOADING);
+                    }
+                }.runTaskLater(plugin, 120L);
                 break;
         }
     }
@@ -108,6 +119,48 @@ public class GameManager {
             if (files == null) continue;
             for (File file : files) {
                 file.delete();
+            }
+        }
+    }
+
+    public void end() {
+        for (UUID uuid : playerManager.getPlayersInGame()) {
+            Player p = Bukkit.getPlayer(uuid);
+            Helper.sendTitle(p, ChatColor.GOLD + "" + ChatColor.BOLD + "VITTORIA!", "", 10, 60, 10);
+            p.playSound(p.getLocation(), Sound.LEVEL_UP, 1, 1);
+
+            Bukkit.getOnlinePlayers().forEach(players -> {
+                players.sendMessage(" ");
+                players.sendMessage(Helper.centerText(ChatColor.AQUA + "" + ChatColor.BOLD + "BLOCK SUMO"));
+                players.sendMessage(" ");
+                players.sendMessage(Helper.centerText(ChatColor.GOLD + "Vincitore: " + ChatColor.GRAY + p.getName()));
+                players.sendMessage(" ");
+                Set<Player> possibilities = new HashSet<>(Bukkit.getOnlinePlayers());
+                int counter=0;
+                do{
+                    int maxkills=0;
+                    Player killer=p;
+                    for(Player player : possibilities){
+                        if(playerManager.getProfile(player).getKills() > maxkills){
+                            maxkills=playerManager.getProfile(player).getKills();
+                            killer=player;
+                        }
+                    }
+                    players.sendMessage(Helper.centerText(ChatColor.RED + String.valueOf(counter+1) + "° killer: " + ChatColor.GRAY + killer.getName() + ChatColor.RED + "- " + maxkills));
+                    possibilities.remove(killer);
+                    counter++;
+                }while(counter<2);
+                players.sendMessage(" ");
+            });
+        }
+        for (UUID uuid : playerManager.getSpectators()) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (playerManager.getProfile(p).getLives() == 5) {
+                Helper.sendTitle(p, ChatColor.BLUE + "" + ChatColor.BOLD + "FINE PARTITA", "", 10, 60, 10);
+                p.playSound(p.getLocation(), Sound.LEVEL_UP, 1, 1);
+            } else {
+                Helper.sendTitle(p, ChatColor.RED + "" + ChatColor.BOLD + "SCONFITTA", "", 10, 60, 10);
+                p.playSound(p.getLocation(), Sound.VILLAGER_NO, 1, 2);
             }
         }
     }

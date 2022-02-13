@@ -6,6 +6,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.godfather.blocksumo.manager.game.GameManager;
+import org.godfather.blocksumo.manager.game.GamePhases;
 import org.godfather.blocksumo.manager.game.items.PlayerNavigator;
 import org.godfather.blocksumo.manager.game.items.Shears;
 import org.godfather.blocksumo.manager.game.items.Wool;
@@ -56,15 +57,15 @@ public class PlayerManager {
         getSpectators().remove(p.getUniqueId());
     }
 
-    public void setupGamePlayer(Player p){
+    public void setupGamePlayer(Player p) {
         players.put(p, new GamePlayer(p.getUniqueId()));
     }
 
-    public void removeGamePlayer(Player p){
+    public void removeGamePlayer(Player p) {
         players.remove(p);
     }
 
-    public GamePlayer getProfile(Player p){
+    public GamePlayer getProfile(Player p) {
         return players.get(p);
     }
 
@@ -72,13 +73,16 @@ public class PlayerManager {
         p.getInventory().clear();
         if (getProfile(p).getLives() >= 1) {
             getProfile(p).removeLife();
-            new DeathCountdown(gameManager, p).runTaskTimer(gameManager.getInstance(), 20L, 20L);
+            new DeathCountdown(gameManager, p).runTaskTimer(gameManager.getInstance(), 0L, 20L);
         } else {
             playersInGame.remove(p.getUniqueId());
             spectators.add(p.getUniqueId());
             p.getInventory().setItem(0, PlayerNavigator.getItem());
             Helper.sendTitle(p, ChatColor.RED + "" + ChatColor.BOLD + "SEI UNO SPETTATORE", ChatColor.GRAY + "Non puoi più respawnare!", 10, 40, 10);
             p.getWorld().strikeLightningEffect(p.getLocation());
+
+            if (getPlayersInGame().size() == 1)
+                gameManager.setPhase(GamePhases.END);
         }
         for (UUID uuid : playersInGame) {
             Player player = Bukkit.getPlayer(uuid);

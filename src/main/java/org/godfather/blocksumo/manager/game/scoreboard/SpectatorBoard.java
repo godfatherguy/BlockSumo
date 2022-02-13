@@ -14,7 +14,7 @@ import org.godfather.blocksumo.manager.game.players.GamePlayer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class IngameBoard extends BukkitRunnable {
+public class SpectatorBoard extends BukkitRunnable {
 
     @Override
     public void run() {
@@ -22,28 +22,25 @@ public class IngameBoard extends BukkitRunnable {
             cancel();
             return;
         }
-        scoreboardManager.getGameManager().getPlayerManager().getPlayersInGame().forEach(uuid -> setScoreboard(Bukkit.getPlayer(uuid)));
+        scoreboardManager.getGameManager().getPlayerManager().getSpectators().forEach(uuid -> setScoreboard(Bukkit.getPlayer(uuid)));
     }
 
     private final ScoreboardManager scoreboardManager;
 
-    public IngameBoard(ScoreboardManager scoreboardManager) {
+    public SpectatorBoard(ScoreboardManager scoreboardManager) {
         this.scoreboardManager = scoreboardManager;
     }
 
     private void setScoreboard(Player p) {
-        GamePlayer profile = scoreboardManager.getGameManager().getPlayerManager().getProfile(p);
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective obj = board.registerNewObjective("dummy", "dummy");
         obj.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "BLOCK SUMO");
-        scoreboardManager.replaceScore(obj, 14, ChatColor.GRAY + format.format(new Date()));
-        scoreboardManager.replaceScore(obj, 13, "    ");
-        scoreboardManager.replaceScore(obj, 12, ChatColor.WHITE + "Vite: " + profile.getLifeColor() + profile.getLives() + ChatColor.DARK_RED + "❤");
-        scoreboardManager.replaceScore(obj, 11, ChatColor.WHITE + "Uccisioni: " + ChatColor.AQUA + profile.getKills());
-        scoreboardManager.replaceScore(obj, 10, "   ");
-        scoreboardManager.replaceScore(obj, 9, ChatColor.WHITE + "Giocatori in vita: " + ChatColor.AQUA + scoreboardManager.getGameManager().getPlayerManager().getPlayersInGame().size());
-        scoreboardManager.replaceScore(obj, 8, "  ");
+        scoreboardManager.replaceScore(obj, 12, ChatColor.GRAY + format.format(new Date()));
+        scoreboardManager.replaceScore(obj, 11, "    ");
+        scoreboardManager.replaceScore(obj, 10, ChatColor.GRAY + "Sei uno spettatore.");
+        scoreboardManager.replaceScore(obj, 9, "   ");
+        scoreboardManager.replaceScore(obj, 8, ChatColor.WHITE + "Giocatori in vita: " + ChatColor.AQUA + scoreboardManager.getGameManager().getPlayerManager().getPlayersInGame().size());
         scoreboardManager.replaceScore(obj, 7, ChatColor.WHITE + "Mappa: " + ChatColor.AQUA + "Java");
         scoreboardManager.replaceScore(obj, 6, " ");
         scoreboardManager.replaceScore(obj, 5, ChatColor.YELLOW + "play.coralmc.it");
@@ -51,11 +48,18 @@ public class IngameBoard extends BukkitRunnable {
         if (obj.getDisplaySlot() != DisplaySlot.SIDEBAR) obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         for (Player players : Bukkit.getOnlinePlayers()) {
-            GamePlayer gameprofile = scoreboardManager.getGameManager().getPlayerManager().getProfile(players);
-            Team giocatore = board.registerNewTeam(players.getName());
-            giocatore.setPrefix(ChatColor.GRAY + "");
-            giocatore.setSuffix(" " + gameprofile.getLifeColor() + String.valueOf(gameprofile.getLives()) + ChatColor.DARK_RED + "❤");
-            giocatore.addEntry(players.getName());
+            if (players.getUniqueId() == p.getUniqueId()) {
+                Team giocatore = board.registerNewTeam("bGiocatore");
+                giocatore.setPrefix(ChatColor.GRAY + "" + ChatColor.ITALIC + "");
+                giocatore.addEntry(players.getName());
+
+            } else {
+                GamePlayer gameprofile = scoreboardManager.getGameManager().getPlayerManager().getProfile(players);
+                Team giocatore = board.registerNewTeam("a" + players.getName());
+                giocatore.setPrefix(ChatColor.GRAY + "");
+                giocatore.setSuffix(" " + gameprofile.getLifeColor() + String.valueOf(gameprofile.getLives()) + ChatColor.DARK_RED + "❤");
+                giocatore.addEntry(players.getName());
+            }
         }
 
         p.setScoreboard(board);

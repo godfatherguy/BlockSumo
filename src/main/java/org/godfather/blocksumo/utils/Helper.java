@@ -2,6 +2,8 @@ package org.godfather.blocksumo.utils;
 
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -19,5 +21,11 @@ public class Helper {
         PacketPlayOutTitle length2 = new PacketPlayOutTitle(in, stay, fade);
         ((CraftPlayer) p).getHandle().playerConnection.sendPacket(subtitle);
         ((CraftPlayer) p).getHandle().playerConnection.sendPacket(length2);
+    }
+
+    public static String centerText(String text) {
+        int maxWidth = 80,
+                spaces = (int) Math.round((maxWidth-1.4* ChatColor.stripColor(text).length())/2);
+        return StringUtils.repeat(" ", spaces)+text;
     }
 }
