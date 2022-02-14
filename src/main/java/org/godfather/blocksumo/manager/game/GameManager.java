@@ -7,15 +7,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.godfather.blocksumo.Main;
-import org.godfather.blocksumo.manager.game.items.Shears;
-import org.godfather.blocksumo.manager.game.items.Wool;
 import org.godfather.blocksumo.manager.game.players.PlayerManager;
-import org.godfather.blocksumo.manager.game.scoreboard.IngameBoard;
 import org.godfather.blocksumo.manager.game.scoreboard.ScoreboardManager;
-import org.godfather.blocksumo.manager.game.scoreboard.SpectatorBoard;
-import org.godfather.blocksumo.manager.game.scoreboard.WaitingBoard;
-import org.godfather.blocksumo.manager.runnables.Countdown;
-import org.godfather.blocksumo.manager.runnables.VisibleRunnable;
 import org.godfather.blocksumo.utils.Helper;
 
 import java.io.File;
@@ -65,46 +58,16 @@ public class GameManager {
 
     public void setPhase(GamePhases phase) {
         this.phase = phase;
-
-        switch (getPhase()) {
-            case LOADING:
-                getPlayerManager().getPlayersInGame().forEach(uuid -> Bukkit.getPlayer(uuid).kickPlayer(ChatColor.RED + "Riavvio in corso..."));
-                getPlayerManager().getSpectators().forEach(uuid -> Bukkit.getPlayer(uuid).kickPlayer(ChatColor.RED + "Riavvio in corso..."));
-                resetWorld();
-                restart();
-
-                setPhase(GamePhases.WAITING);
-                break;
-            case WAITING:
-                new WaitingBoard(scoreboardManager).runTaskTimer(plugin, 0L, 5L);
-                break;
-            case STARTING:
-                new Countdown(this).runTaskTimer(plugin, 10L, 20L);
-                break;
-            case INGAME:
-                new IngameBoard(scoreboardManager).runTaskTimer(plugin, 0L, 5L);
-                new SpectatorBoard(scoreboardManager).runTaskTimer(plugin, 0L, 5L);
-                new VisibleRunnable(this).runTaskTimer(plugin, 0L, 10L);
-                getPlayerManager().getPlayersInGame().forEach(uuid -> {
-                    Player p = Bukkit.getPlayer(uuid);
-                    Helper.sendTitle(p, ChatColor.RED + "" + ChatColor.BOLD + "BlockSumo", ChatColor.YELLOW + "Gioco iniziato!", 5, 40, 5);
-                    p.playSound(Bukkit.getPlayer(uuid).getLocation(), Sound.LEVEL_UP, 1, 2);
-                    p.sendMessage(ChatColor.GREEN + "Partita iniziata!");
-                    p.teleport(mapManager.getSpawnLocation());
-                    p.getInventory().setItem(0, Shears.getItem());
-                    p.getInventory().setItem(3, Wool.getItem());
-
-                });
-                break;
-            case END:
-                end();
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        setPhase(GamePhases.LOADING);
-                    }
-                }.runTaskLater(plugin, 120L);
-                break;
+        phase.getConsumer().accept(this);
+        if (phase == GamePhases.LOADING) {
+            setPhase(GamePhases.WAITING);
+        } else if (phase == GamePhases.END) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    setPhase(GamePhases.LOADING);
+                }
+            }.runTaskLater(plugin, 120L);
         }
     }
 

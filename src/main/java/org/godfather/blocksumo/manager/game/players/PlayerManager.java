@@ -72,6 +72,7 @@ public class PlayerManager {
 
     public void killPlayer(Player p) {
         p.getInventory().clear();
+        p.getInventory().setItem(0, PlayerNavigator.getItem());
         if (getProfile(p).getLives() >= 1) {
             getProfile(p).removeLife();
             new DeathCountdown(gameManager, p).runTaskTimer(gameManager.getInstance(), 0L, 20L);
@@ -90,15 +91,17 @@ public class PlayerManager {
             player.hidePlayer(p);
         }
         p.setGameMode(GameMode.ADVENTURE);
+        p.teleport(gameManager.getMap().getSpectLocation());
         p.setAllowFlight(true);
         p.setFlying(true);
-        p.teleport(gameManager.getMap().getSpectLocation());
+        p.setVelocity(p.getVelocity().setY(0));
     }
 
     public void respawnPlayer(Player p) {
         Inventory inventory = p.getInventory();
         inventory.setItem(0, Shears.getItem());
         inventory.setItem(3, Wool.getItem());
+        p.teleport(gameManager.getMap().getSpawnLocation());
         for (UUID uuid : playersInGame) {
             Player player = Bukkit.getPlayer(uuid);
             player.showPlayer(p);
@@ -106,7 +109,7 @@ public class PlayerManager {
         p.setGameMode(GameMode.SURVIVAL);
         p.setAllowFlight(false);
         p.setFlying(false);
-        p.teleport(gameManager.getMap().getSpawnLocation());
+        Helper.sendTitle(p, ChatColor.GREEN + "SEI RESPAWNATO!", "", 5, 20, 5);
     }
 
     public void restart() {

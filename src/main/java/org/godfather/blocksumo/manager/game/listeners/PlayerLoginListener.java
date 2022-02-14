@@ -91,8 +91,10 @@ public class PlayerLoginListener implements Listener {
                 } else if (gameManager.getPlayerManager().getPlayersInGame().contains(p.getUniqueId())) {
                     gameManager.getPlayerManager().removePlayerFromGame(p);
                     Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GRAY + p.getName() + ChatColor.YELLOW + " è uscito dalla partita."));
-                    if (gameManager.getPlayerManager().getPlayersInGame().size() == 0) {
-                        //todo resettare il game;
+                    if (gameManager.getPlayerManager().getPlayersInGame().size() == 1) {
+                        gameManager.setPhase(GamePhases.END);
+                    } else if (gameManager.getPlayerManager().getPlayersInGame().size() == 0) {
+                        gameManager.setPhase(GamePhases.LOADING);
                     }
                 }
                 break;

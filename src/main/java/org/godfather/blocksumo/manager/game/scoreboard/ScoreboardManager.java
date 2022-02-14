@@ -5,7 +5,7 @@ import org.godfather.blocksumo.manager.game.GameManager;
 
 public class ScoreboardManager {
 
-    private GameManager gameManager;
+    private final GameManager gameManager;
 
     public ScoreboardManager(GameManager gameManager) {
         this.gameManager = gameManager;

@@ -68,7 +68,6 @@ public class PlayerWorldListener implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
-        Player p = event.getPlayer();
         Block block = event.getBlock();
         event.setCancelled(true);
 

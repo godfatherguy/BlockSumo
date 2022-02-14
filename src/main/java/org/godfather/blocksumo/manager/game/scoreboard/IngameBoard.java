@@ -54,7 +54,7 @@ public class IngameBoard extends BukkitRunnable {
             GamePlayer gameprofile = scoreboardManager.getGameManager().getPlayerManager().getProfile(players);
             Team giocatore = board.registerNewTeam(players.getName());
             giocatore.setPrefix(ChatColor.GRAY + "");
-            giocatore.setSuffix(" " + gameprofile.getLifeColor() + String.valueOf(gameprofile.getLives()) + ChatColor.DARK_RED + "❤");
+            giocatore.setSuffix(" " + gameprofile.getLifeColor() + gameprofile.getLives() + ChatColor.DARK_RED + "❤");
             giocatore.addEntry(players.getName());
         }
 
