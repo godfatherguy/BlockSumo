@@ -17,8 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.godfather.blocksumo.manager.game.GameManager;
 import org.godfather.blocksumo.manager.game.GamePhases;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class PlayerWorldListener implements Listener {
 
@@ -31,6 +30,7 @@ public class PlayerWorldListener implements Listener {
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
+        Player p = event.getPlayer();
 
         if (gameManager.getPhase() != GamePhases.INGAME) {
             event.setCancelled(true);
@@ -57,7 +57,13 @@ public class PlayerWorldListener implements Listener {
             return;
         }
 
+        p.getInventory().setItem(p.getInventory().getHeldItemSlot(), new ItemStack(Material.WOOL, 64));
+
         gameManager.getBlockManager().addBlock(block);
+
+        List<DyeColor> colors = new ArrayList<>(Arrays.asList(DyeColor.values()));
+
+        block.setData((byte) new Random().nextInt(colors.size()));
     }
 
     @EventHandler
@@ -68,10 +74,10 @@ public class PlayerWorldListener implements Listener {
 
         if (gameManager.getPhase() != GamePhases.INGAME) return;
 
-        if (!gameManager.getBlockManager().getPlacedBlocks().contains(block)) return;
+        if (!gameManager.getBlockManager().getPlacedBlocks().contains(block.getLocation())) return;
 
         gameManager.getBlockManager().removeBlock(block);
-        p.getInventory().addItem(new ItemStack(Material.WOOL));
+        block.setType(Material.AIR);
     }
 
     @EventHandler
@@ -94,7 +100,7 @@ public class PlayerWorldListener implements Listener {
             return;
         }
 
-        if (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK)
+        if (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK || p.getGameMode() != GameMode.SURVIVAL)
             event.setCancelled(true);
         else event.setDamage(0.0);
     }
@@ -119,11 +125,10 @@ public class PlayerWorldListener implements Listener {
         Player damager = (Player) event.getDamager();
 
         event.setDamage(0.0);
-        if(gameManager.getPlayerManager().damageMap.containsKey(victim) && gameManager.getPlayerManager().damageMap.get(victim).getUniqueId() != damager.getUniqueId()){
+        if (gameManager.getPlayerManager().damageMap.containsKey(victim) && gameManager.getPlayerManager().damageMap.get(victim).getUniqueId() != damager.getUniqueId()) {
             gameManager.getPlayerManager().damageMap.remove(victim);
             gameManager.getPlayerManager().damageMap.put(victim, damager);
-        }
-        else if(!gameManager.getPlayerManager().damageMap.containsKey(victim)){
+        } else if (!gameManager.getPlayerManager().damageMap.containsKey(victim)) {
             gameManager.getPlayerManager().damageMap.put(victim, damager);
         }
         new BukkitRunnable() {
@@ -143,8 +148,6 @@ public class PlayerWorldListener implements Listener {
 
         if (gameManager.getPhase() != GamePhases.INGAME) return;
 
-        gameManager.getPlayerManager().killPlayer(p);
-
         Player damager = (Player) gameManager.getPlayerManager().damageMap.get(p);
         if (damager == null || !damager.isOnline()) {
             Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è caduto nel vuoto."));
@@ -153,5 +156,7 @@ public class PlayerWorldListener implements Listener {
             Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.GREEN + p.getName() + ChatColor.GRAY + " è stato spinto da " + ChatColor.RED + damager.getName() + ChatColor.GRAY + "!"));
             damager.playSound(damager.getLocation(), Sound.ORB_PICKUP, 1, 2);
         }
+
+        gameManager.getPlayerManager().killPlayer(p);
     }
 }

@@ -15,6 +15,7 @@ import org.godfather.blocksumo.manager.game.scoreboard.ScoreboardManager;
 import org.godfather.blocksumo.manager.game.scoreboard.SpectatorBoard;
 import org.godfather.blocksumo.manager.game.scoreboard.WaitingBoard;
 import org.godfather.blocksumo.manager.runnables.Countdown;
+import org.godfather.blocksumo.manager.runnables.VisibleRunnable;
 import org.godfather.blocksumo.utils.Helper;
 
 import java.io.File;
@@ -32,7 +33,7 @@ public class GameManager {
     public GameManager(Main plugin) {
         this.plugin = plugin;
         playerManager = new PlayerManager(this);
-        blockManager = new BlockManager(this);
+        blockManager = new BlockManager();
         mapManager = new MapManager();
         this.scoreboardManager = new ScoreboardManager(this);
         setPhase(GamePhases.LOADING);
@@ -83,6 +84,7 @@ public class GameManager {
             case INGAME:
                 new IngameBoard(scoreboardManager).runTaskTimer(plugin, 0L, 5L);
                 new SpectatorBoard(scoreboardManager).runTaskTimer(plugin, 0L, 5L);
+                new VisibleRunnable(this).runTaskTimer(plugin, 0L, 10L);
                 getPlayerManager().getPlayersInGame().forEach(uuid -> {
                     Player p = Bukkit.getPlayer(uuid);
                     Helper.sendTitle(p, ChatColor.RED + "" + ChatColor.BOLD + "BlockSumo", ChatColor.YELLOW + "Gioco iniziato!", 5, 40, 5);
@@ -146,10 +148,10 @@ public class GameManager {
                             killer = player;
                         }
                     }
-                    players.sendMessage(Helper.centerText(ChatColor.RED + String.valueOf(counter + 1) + "° killer: " + ChatColor.GRAY + killer.getName() + ChatColor.RED + "- " + maxkills));
+                    players.sendMessage(Helper.centerText(ChatColor.RED + String.valueOf(counter + 1) + "°: " + ChatColor.GRAY + killer.getName() + ChatColor.RED + " - " + ChatColor.GRAY + maxkills + " Uccisioni"));
                     possibilities.remove(killer);
                     counter++;
-                } while (counter < 2);
+                } while (counter < 3);
                 players.sendMessage(" ");
             });
         }
@@ -165,7 +167,7 @@ public class GameManager {
         }
     }
 
-    public void restart(){
+    public void restart() {
         playerManager.restart();
         blockManager.clear();
     }

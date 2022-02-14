@@ -89,7 +89,9 @@ public class PlayerManager {
             Player player = Bukkit.getPlayer(uuid);
             player.hidePlayer(p);
         }
-        p.setGameMode(GameMode.SPECTATOR);
+        p.setGameMode(GameMode.ADVENTURE);
+        p.setAllowFlight(true);
+        p.setFlying(true);
         p.teleport(gameManager.getMap().getSpectLocation());
     }
 
@@ -102,10 +104,12 @@ public class PlayerManager {
             player.showPlayer(p);
         }
         p.setGameMode(GameMode.SURVIVAL);
+        p.setAllowFlight(false);
+        p.setFlying(false);
         p.teleport(gameManager.getMap().getSpawnLocation());
     }
 
-    public void restart(){
+    public void restart() {
         playersInGame.clear();
         spectators.clear();
         players.clear();

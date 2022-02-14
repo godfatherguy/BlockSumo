@@ -25,7 +25,7 @@ public class Helper {
 
     public static String centerText(String text) {
         int maxWidth = 80,
-                spaces = (int) Math.round((maxWidth-1.4* ChatColor.stripColor(text).length())/2);
-        return StringUtils.repeat(" ", spaces)+text;
+                spaces = (int) Math.round((maxWidth - 1.4 * ChatColor.stripColor(text).length()) / 2);
+        return StringUtils.repeat(" ", spaces) + text;
     }
 }
