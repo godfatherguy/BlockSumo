@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.godfather.blocksumo.Main;
 import org.godfather.blocksumo.manager.game.players.PlayerManager;
-import org.godfather.blocksumo.manager.game.scoreboard.ScoreboardManager;
 import org.godfather.blocksumo.utils.Helper;
 
 import java.io.File;
@@ -21,14 +20,13 @@ public class GameManager {
     private final PlayerManager playerManager;
     private final BlockManager blockManager;
     private final MapManager mapManager;
-    private final ScoreboardManager scoreboardManager;
+    private int timecountdown;
 
     public GameManager(Main plugin) {
         this.plugin = plugin;
         playerManager = new PlayerManager(this);
         blockManager = new BlockManager();
         mapManager = new MapManager();
-        this.scoreboardManager = new ScoreboardManager(this);
         setPhase(GamePhases.LOADING);
     }
 
@@ -44,8 +42,12 @@ public class GameManager {
         return blockManager;
     }
 
-    public ScoreboardManager getScoreboard() {
-        return scoreboardManager;
+    public int getTimecountdown() {
+        return timecountdown;
+    }
+
+    public void setTimecountdown(int time) {
+        timecountdown = time;
     }
 
     public MapManager getMap() {

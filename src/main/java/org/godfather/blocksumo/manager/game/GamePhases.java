@@ -6,9 +6,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.godfather.blocksumo.manager.game.items.Shears;
 import org.godfather.blocksumo.manager.game.items.Wool;
-import org.godfather.blocksumo.manager.game.scoreboard.IngameBoard;
-import org.godfather.blocksumo.manager.game.scoreboard.SpectatorBoard;
-import org.godfather.blocksumo.manager.game.scoreboard.WaitingBoard;
 import org.godfather.blocksumo.manager.runnables.Countdown;
 import org.godfather.blocksumo.manager.runnables.VisibleRunnable;
 import org.godfather.blocksumo.utils.Helper;
@@ -24,14 +21,11 @@ public enum GamePhases {
         gameManager.restart();
 
     }), WAITING(gameManager -> {
-        new WaitingBoard(gameManager.getScoreboard()).runTaskTimer(gameManager.getInstance(), 0L, 5L);
 
     }), STARTING(gameManager -> {
         new Countdown(gameManager).runTaskTimer(gameManager.getInstance(), 10L, 20L);
 
     }), INGAME(gameManager -> {
-        new IngameBoard(gameManager.getScoreboard()).runTaskTimer(gameManager.getInstance(), 0L, 5L);
-        new SpectatorBoard(gameManager.getScoreboard()).runTaskTimer(gameManager.getInstance(), 0L, 5L);
         new VisibleRunnable(gameManager).runTaskTimer(gameManager.getInstance(), 0L, 10L);
         gameManager.getPlayerManager().getPlayersInGame().forEach(uuid -> {
             Player p = Bukkit.getPlayer(uuid);

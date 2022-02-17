@@ -72,7 +72,6 @@ public class PlayerManager {
 
     public void killPlayer(Player p) {
         p.getInventory().clear();
-        p.getInventory().setItem(0, PlayerNavigator.getItem());
         if (getProfile(p).getLives() >= 1) {
             getProfile(p).removeLife();
             new DeathCountdown(gameManager, p).runTaskTimer(gameManager.getInstance(), 0L, 20L);
